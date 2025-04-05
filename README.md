@@ -65,7 +65,7 @@ If the output of the csv file is not an immediate request, we can also store the
 I once implemented a performance test program to compare the performance of specific query between row-based database (MySql) 
 and column-based database(DuckDB).
 
-The DuckDB will highly outperform on the tasks like aggregating data based on time.
+The DuckDB will highly outperform on the tasks like aggregating data based on time, you can find my test from [here](https://github.com/infinityjay/ADM2024/blob/main/ADM2024-A2-s4162315/code.ipynb).
 
 ### Comparison
 
@@ -77,8 +77,12 @@ Then I run the main function, it turns out that the original function processing
 function processing time is 20543 which is almost a 45% speedup. Use the following command separately.
 
 ```bash
+# generate test file
+go run ./data/expand.go
+
 # original function
 go run main.go -i ./data/expanded.csv -o ./data/quarterly_expanded.csv
+
 # use chunked function
 go run main.go -i ./data/expanded.csv -o ./data/quarterly_expanded.csv -c true 
 ```
