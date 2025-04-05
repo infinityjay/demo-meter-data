@@ -1,8 +1,78 @@
 package internal
 
 import (
+	"os"
+	"sort"
 	"testing"
+	"time"
 )
+
+func TestAggregateData(t *testing.T) {
+	tests := []struct {
+		name           string
+		inputCSV       string
+		expectedResult []AggregateInfo
+		expectedError  error
+	}{
+		{
+			name: "Valid data aggregation",
+			inputCSV: `householdID,consumption,timestamp
+1,10.33,1675596305
+1,10.6,1675682705
+2,20.66,1676460305
+2,2.4,1675682705
+1,10.5,1684149905
+invalid,100,1684149905
+1,invalid,1684149905
+2,2.34,1683285905`,
+			expectedResult: []AggregateInfo{
+				{HouseholdID: 1, Year: 2023, Quarter: "Q1", Consumption: 2093},
+				{HouseholdID: 1, Year: 2023, Quarter: "Q2", Consumption: 1050},
+				{HouseholdID: 2, Year: 2023, Quarter: "Q1", Consumption: 2306},
+				{HouseholdID: 2, Year: 2023, Quarter: "Q2", Consumption: 234},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// create a temporary file with the input CSV data
+			tmpFile, err := os.CreateTemp("", "*.csv")
+			if err != nil {
+				t.Fatalf("Error creating temporary file: %v", err)
+			}
+			defer os.Remove(tmpFile.Name())
+
+			// write input CSV to the temporary file
+			_, err = tmpFile.WriteString(tt.inputCSV)
+			if err != nil {
+				t.Fatalf("Error writing to temporary file: %v", err)
+			}
+			tmpFile.Close()
+
+			timeZone, _ := time.LoadLocation("Europe/Amsterdam")
+			result, err := AggregateData(tmpFile.Name(), timeZone)
+			if (err != nil) != (tt.expectedError != nil) {
+				t.Errorf("expected error: %v, got error: %v", tt.expectedError, err)
+			}
+			// sort results with ID, ensure same order
+			sort.Slice(result, func(i, j int) bool {
+				return result[i].HouseholdID < result[j].HouseholdID
+			})
+			// check result
+			if len(result) != len(tt.expectedResult) {
+				t.Errorf("expected result: %v, got result: %v", tt.expectedResult, result)
+			} else {
+				for i, r := range result {
+					if r != tt.expectedResult[i] {
+						t.Errorf("expected result[%d]: %v, got result[%d]: %v", i, tt.expectedResult[i], i, r)
+					}
+				}
+			}
+		})
+	}
+}
 
 func TestParseQuarterKey(t *testing.T) {
 	tests := []struct {

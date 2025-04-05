@@ -28,18 +28,18 @@ func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, e
 	if err != nil {
 		return nil, fmt.Errorf("error opening %s: %v", filename, err)
 	}
+	lineNumber := 0
 	defer f.Close()
 
 	csvReader := csv.NewReader(f)
 	// read the file line by line
-	lineNumber := 1
 	for {
+		lineNumber++
 		row, err := csvReader.Read()
 		if err == io.EOF {
 			break
 		}
 		if lineNumber == 1 {
-			lineNumber++
 			continue
 		}
 
@@ -72,7 +72,6 @@ func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, e
 			aggregateMap[householdID] = make(map[string]int)
 		}
 		aggregateMap[householdID][quarterKey] += consumptionInt
-		lineNumber++
 	}
 	// get aggregated data from map
 	for id, quarterData := range aggregateMap {
@@ -89,14 +88,18 @@ func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, e
 				Consumption: consumption,
 			})
 		}
-		sort.Slice(aggregatedData, func(i, j int) bool {
-			if aggregatedData[i].Year != aggregatedData[j].Year {
-				return aggregatedData[i].Year < aggregatedData[j].Year
-			}
-			return aggregatedData[i].Quarter < aggregatedData[j].Quarter
-		})
 		results = append(results, aggregatedData...)
 	}
+	// sort results with id, year and quarter
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].HouseholdID != results[j].HouseholdID {
+			return results[i].HouseholdID < results[j].HouseholdID
+		}
+		if results[i].Year != results[j].Year {
+			return results[i].Year < results[j].Year
+		}
+		return results[i].Quarter < results[j].Quarter
+	})
 
 	return results, nil
 }
