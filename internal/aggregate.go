@@ -21,12 +21,13 @@ type AggregateInfo struct {
 	Consumption int
 }
 
-func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, error) {
+func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, int64, error) {
+	start := time.Now().UnixMilli()
 	var results []AggregateInfo
 	aggregateMap := make(map[int]map[string]int)
 	f, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("error opening %s: %v", filename, err)
+		return nil, 0, fmt.Errorf("error opening %s: %v", filename, err)
 	}
 	lineNumber := 0
 	defer f.Close()
@@ -79,7 +80,7 @@ func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, e
 		for quarterKey, consumption := range quarterData {
 			year, quarter, err := parseQuarterKey(quarterKey)
 			if err != nil {
-				return nil, fmt.Errorf("error parse quaterKey: %v", err)
+				return nil, 0, fmt.Errorf("error parse quaterKey: %v", err)
 			}
 			aggregatedData = append(aggregatedData, AggregateInfo{
 				HouseholdID: id,
@@ -100,8 +101,9 @@ func AggregateData(filename string, timeZone *time.Location) ([]AggregateInfo, e
 		}
 		return results[i].Quarter < results[j].Quarter
 	})
+	end := time.Now().UnixMilli()
 
-	return results, nil
+	return results, end - start, nil
 }
 
 func parseQuarterKey(quarterKey string) (int, string, error) {

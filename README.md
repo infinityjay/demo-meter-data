@@ -26,9 +26,9 @@ There could be an extremely large dataset where processing each row of consumpti
 
 ### Analysis
 
-For this example, the bottleneck is in the processing part. The results  will only rely on the household number, and  
+For this example, the bottleneck is in the processing part. The results  will only rely on the unique household number, and  
 the process of writing the result to the csv file does not need to be optimized. And the main goal of the optimization 
-is to improve the time efficiency and we assume the memory usage is not limited.
+is to improve the time efficiency of line by line data processing, and we assume the memory usage is not limited.
 
 ### Solutions
 
