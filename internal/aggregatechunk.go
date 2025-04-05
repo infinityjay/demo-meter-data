@@ -4,7 +4,6 @@ import (
 	"demo_meter_data/common"
 	"encoding/csv"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"runtime"
@@ -40,7 +39,6 @@ func AggregateDataChunk(filename string, timeZone *time.Location) ([]AggregateIn
 	chunks := splitIntoChunks(dataRows, chunkSize)
 
 	var wg sync.WaitGroup
-	var mu sync.Mutex
 	resultsCh := make(chan map[int]map[string]int, numWorkers)
 
 	for _, chunk := range chunks {
@@ -51,28 +49,23 @@ func AggregateDataChunk(filename string, timeZone *time.Location) ([]AggregateIn
 			for _, row := range chunk {
 				householdID, err := strconv.Atoi(row[0])
 				if err != nil {
-					log.Printf("Invalid householdID: %v, error: %v\n", row, err)
 					continue
 				}
 				consumption, err := strconv.ParseFloat(row[1], 64)
 				if err != nil {
-					log.Printf("Invalid consumption: %v, error: %v\n", row, err)
 					continue
 				}
 				consumptionInt := int(math.Round(consumption * 100))
 				year, quarter, err := common.ValidateTime(row[2], timeZone)
 				if err != nil {
-					log.Printf("Invalid timestamp: %v, error: %v\n", row, err)
 					continue
 				}
 				quarterKey := fmt.Sprintf("%d-%s", year, quarter)
-				// add lock to avoid concurrent write to map
-				mu.Lock()
+				// local map no need to lock
 				if _, ok := aggregateMap[householdID]; !ok {
 					aggregateMap[householdID] = make(map[string]int)
 				}
 				aggregateMap[householdID][quarterKey] += consumptionInt
-				mu.Unlock()
 			}
 			resultsCh <- aggregateMap
 		}(chunk)

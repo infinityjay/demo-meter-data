@@ -8,8 +8,11 @@ import (
 
 func main() {
 	timeZone, _ := time.LoadLocation("Europe/Amsterdam")
-	inputFile := "./data/household_consumption.csv"
-	outputFile := "./data/quarterly_consumption.csv"
+	//inputFile := "./data/household_consumption.csv"
+	//outputFile := "./data/quarterly_consumption.csv"
+	inputFile := "./data/expanded.csv"
+	outputFile := "./data/quarterly_expanded.csv"
+
 	// original process
 	aggregatedData, processTime, err := internal.AggregateData(inputFile, timeZone)
 	if err != nil {
@@ -35,7 +38,7 @@ func main() {
 			return
 		}
 	}
-
+	// generate csv file
 	err = internal.GenerateCsv(aggregatedData, outputFile)
 	if err != nil {
 		fmt.Println(err)

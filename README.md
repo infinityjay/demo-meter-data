@@ -53,6 +53,12 @@ The DuckDB will highly outperform on the tasks like aggregating data based on ti
 
 ### Comparison
 
+I implement the solution 2 Multi-chunks processing. I set the number of workers to the number of CPUs and split the 
+rows evenly into multiple chunks. I generate a 1.57GB file by duplicate the original file for 500 times through the 
+file `./data/expand.go`.
+
+Then I run the main function, it turns out that the original function processing time is 37590ms, and the optimized 
+function processing time is 20543 which is almost a 45% speedup.
 
 
 
