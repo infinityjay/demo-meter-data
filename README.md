@@ -58,7 +58,10 @@ rows evenly into multiple chunks. I generate a 1.57GB file by duplicate the orig
 file `./data/expand.go`.
 
 Then I run the main function, it turns out that the original function processing time is 37590ms, and the optimized 
-function processing time is 20543 which is almost a 45% speedup.
+function processing time is 20543 which is almost a 45% speedup. 
+
+But the result is still not so ideal, and the read file part is also time-consuming, we can consider using streaming
+read.
 
 
 
