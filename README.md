@@ -67,7 +67,7 @@ and column-based database(DuckDB).
 
 The DuckDB will highly outperform on the tasks like aggregating data based on time, you can find my test from [here](https://github.com/infinityjay/ADM2024/blob/main/ADM2024-A2-s4162315/code.ipynb).
 
-### Comparison
+### Performance test between original and chunk-based functions
 
 I implement the solution 2 Multi-chunks processing. I set the number of workers to the number of CPUs and split the 
 rows evenly into multiple chunks. I generate a 1.57GB file by duplicate the original file for 500 times through the 
