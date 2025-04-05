@@ -3,45 +3,47 @@ package main
 import (
 	"demo_meter_data/internal"
 	"fmt"
+	"github.com/spf13/pflag"
 	"time"
 )
 
 func main() {
-	timeZone, _ := time.LoadLocation("Europe/Amsterdam")
-	//inputFile := "./data/household_consumption.csv"
-	//outputFile := "./data/quarterly_consumption.csv"
-	inputFile := "./data/expanded.csv"
-	outputFile := "./data/quarterly_expanded.csv"
+	var inputFile = pflag.StringP("inputFile", "i", "./data/household_consumption.csv", "input file path")
+	var outputFile = pflag.StringP("outputFile", "o", "./data/quarterly_consumption.csv", "output file path")
+	var chunk = pflag.BoolP("chunk", "c", false, "use chunk function or not")
+	pflag.Parse()
 
-	// original process
-	aggregatedData, processTime, err := internal.AggregateData(inputFile, timeZone)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("original processing time: %v\n", processTime)
-	// chunk process
-	aggregatedDataChunk, processTimeChunk, err := internal.AggregateDataChunk(inputFile, timeZone)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("original processing time: %v\n", processTimeChunk)
-	// compare results
-	if len(aggregatedData) != len(aggregatedDataChunk) {
-		fmt.Println("the results of two function are different")
-		return
-	}
-	for i, row := range aggregatedData {
-		if row != aggregatedDataChunk[i] {
-			fmt.Println("the results of two function are different")
+	timeZone, _ := time.LoadLocation("Europe/Amsterdam")
+
+	if *chunk {
+		// chunk process
+		aggregatedDataChunk, processTimeChunk, err := internal.AggregateDataChunk(*inputFile, timeZone)
+		if err != nil {
+			fmt.Println(err)
 			return
 		}
-	}
-	// generate csv file
-	err = internal.GenerateCsv(aggregatedData, outputFile)
-	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Printf("original processing time: %v\n", processTimeChunk)
+
+		// generate csv file
+		err = internal.GenerateCsv(aggregatedDataChunk, *outputFile)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	} else {
+		// original process
+		aggregatedData, processTime, err := internal.AggregateData(*inputFile, timeZone)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("original processing time: %v\n", processTime)
+
+		// generate csv file
+		err = internal.GenerateCsv(aggregatedData, *outputFile)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }

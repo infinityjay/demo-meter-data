@@ -7,7 +7,23 @@ The input and output files are located in the `./data` folder.
 ## Execute
 You can execute the program by following command and then you can check the results in the `./data` folder.
 ```bash
+# default input file is ./data/household_consumption.csv
 go run main.go
+```
+
+I also implement the optimized version for the process logic. You can generate the test file and try following command.
+```bash
+# generate test file
+go run ./data/expand.go
+
+# specify input or output file
+go run main.go -i ./data/expanded.csv -o ./data/quarterly_expanded.csv
+
+# specify use chunk function, default not use
+go run main.go -c true 
+
+# check parameters
+go run main.go --help
 ```
 
 ## Test
@@ -58,10 +74,17 @@ rows evenly into multiple chunks. I generate a 1.57GB file by duplicate the orig
 file `./data/expand.go`.
 
 Then I run the main function, it turns out that the original function processing time is 37590ms, and the optimized 
-function processing time is 20543 which is almost a 45% speedup. 
+function processing time is 20543 which is almost a 45% speedup. Use the following command separately.
+
+```bash
+# original function
+go run main.go -i ./data/expanded.csv -o ./data/quarterly_expanded.csv
+# use chunked function
+go run main.go -i ./data/expanded.csv -o ./data/quarterly_expanded.csv -c true 
+```
 
 But the result is still not so ideal, and the read file part is also time-consuming, we can consider using streaming
-read.
+ file read.
 
 
 

@@ -51,7 +51,7 @@ invalid,100,1684149905
 			tmpFile.Close()
 
 			timeZone, _ := time.LoadLocation("Europe/Amsterdam")
-			result, err := AggregateData(tmpFile.Name(), timeZone)
+			result, _, err := AggregateData(tmpFile.Name(), timeZone)
 			if (err != nil) != (tt.expectedError != nil) {
 				t.Errorf("expected error: %v, got error: %v", tt.expectedError, err)
 			}
