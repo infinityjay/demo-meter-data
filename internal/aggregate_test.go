@@ -2,7 +2,6 @@ package internal
 
 import (
 	"os"
-	"sort"
 	"testing"
 	"time"
 )
@@ -56,10 +55,6 @@ invalid,100,1684149905
 			if (err != nil) != (tt.expectedError != nil) {
 				t.Errorf("expected error: %v, got error: %v", tt.expectedError, err)
 			}
-			// sort results with ID, ensure same order
-			sort.Slice(result, func(i, j int) bool {
-				return result[i].HouseholdID < result[j].HouseholdID
-			})
 			// check result
 			if len(result) != len(tt.expectedResult) {
 				t.Errorf("expected result: %v, got result: %v", tt.expectedResult, result)
